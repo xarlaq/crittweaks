@@ -1,0 +1,35 @@
+{
+	"schemaVersion": 1,
+	"id": "crittweaks",
+	"version": "${version}",
+	"name": "CritTweaks",
+	"description": "Tweak your crit and sharpness particles.",
+	"authors": [
+		"xarlaq"
+	],
+	"contact": {},
+	"license": "GPL-3.0-only",
+	"icon": "assets/crittweaks/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.example.crittweaks.CritTweaksClient"
+		],
+		"modmenu": [
+			"com.example.crittweaks.config.ModMenuIntegration"
+		]
+	},
+	"mixins": [
+		"crittweaks.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"minecraft": ">=1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	},
+	"recommends": {
+		"cloth-config": "*",
+		"modmenu": "*"
+	}
+}

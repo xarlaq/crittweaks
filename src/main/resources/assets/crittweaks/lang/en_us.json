@@ -1,0 +1,31 @@
+{
+  "text.autoconfig.crittweaks.title": "CritTweaks Configuration",
+  "text.autoconfig.crittweaks.category.default": "CritTweaks",
+
+  "text.autoconfig.crittweaks.option.modEnabled": "Mod Enabled",
+  "text.autoconfig.crittweaks.option.modEnabled.tooltip": "Switches the whole mod on or off. When off, everything acts like vanilla.",
+
+  "text.autoconfig.crittweaks.option.forceCritParticles.@PrefixText": "Criticals",
+  "text.autoconfig.crittweaks.option.forceCritParticles": "Force Crit Particles",
+  "text.autoconfig.crittweaks.option.forceCritParticles.tooltip": "Always shows crit particles, even when your particle setting is on Minimal.",
+  "text.autoconfig.crittweaks.option.alwaysCritParticles": "Always Crit Particles",
+  "text.autoconfig.crittweaks.option.alwaysCritParticles.tooltip": "Always have crit particles, even when the hit wasn't actually a critical.",
+  "text.autoconfig.crittweaks.option.hideOtherPlayerCrits": "Hide Other Player Crits",
+  "text.autoconfig.crittweaks.option.hideOtherPlayerCrits.tooltip": "Hides crit particles from other players, so only your own hits show.",
+  "text.autoconfig.crittweaks.option.hideIncomingCrits": "Hide Crits On Yourself",
+  "text.autoconfig.crittweaks.option.hideIncomingCrits.tooltip": "Hides the crit particles that pop up on you when you get hit.",
+  "text.autoconfig.crittweaks.option.critParticleMultiplier": "Crit Particle Multiplier",
+  "text.autoconfig.crittweaks.option.critParticleMultiplier.tooltip": "Lets you multiply how many crit particles show on each hit.",
+
+  "text.autoconfig.crittweaks.option.forceSharpnessParticles.@PrefixText": "Sharpness",
+  "text.autoconfig.crittweaks.option.forceSharpnessParticles": "Force Sharpness Particles",
+  "text.autoconfig.crittweaks.option.forceSharpnessParticles.tooltip": "Always shows sharpness particles, even when your particle setting is on Minimal.",
+  "text.autoconfig.crittweaks.option.alwaysSharpnessParticles": "Always Sharpness Particles",
+  "text.autoconfig.crittweaks.option.alwaysSharpnessParticles.tooltip": "Always have sharpness particles, even without a sword or any Sharpness.",
+  "text.autoconfig.crittweaks.option.hideOtherPlayerSharpness": "Hide Other Player Sharpness",
+  "text.autoconfig.crittweaks.option.hideOtherPlayerSharpness.tooltip": "Hides sharpness particles from other players, so only your own hits show.",
+  "text.autoconfig.crittweaks.option.hideIncomingSharpness": "Hide Sharpness On Yourself",
+  "text.autoconfig.crittweaks.option.hideIncomingSharpness.tooltip": "Hides the sharpness particles that pop up on you when you get hit.",
+  "text.autoconfig.crittweaks.option.sharpnessParticleMultiplier": "Sharpness Particle Multiplier",
+  "text.autoconfig.crittweaks.option.sharpnessParticleMultiplier.tooltip": "Lets you multiply how many sharpness particles show on each hit."
+}

@@ -1,0 +1,157 @@
+buildscript {
+	repositories {
+		maven { url 'https://maven.fabricmc.net/' }
+		mavenCentral()
+		gradlePluginPortal()
+	}
+	dependencies {
+		classpath "net.fabricmc:fabric-loom:${loom_version}"
+	}
+}
+
+// --- Version Profile Loading ---
+// Determine the target Minecraft version.
+def mcVersion = project.hasProperty('mc_version') ? project.property('mc_version') : project.property('minecraft_version')
+println "MCVERSION IS: ${mcVersion}"
+
+def versionPropsFile = file("versions/${mcVersion}.properties")
+def versionProps = new Properties()
+
+if (versionPropsFile.exists()) {
+	versionPropsFile.withInputStream { versionProps.load(it) }
+	versionProps.each { key, value ->
+		project.ext.set(key as String, value as String)
+	}
+} else {
+	// Fallback: use gradle.properties values directly
+	project.ext.set('is_obfuscated', 'true')
+	project.ext.set('yarn_mappings', '')
+	project.ext.set('fabric_api_version', project.property('fabric_version'))
+	project.ext.set('cloth_config_version', project.hasProperty('cloth_config_version') ? project.property('cloth_config_version') : '')
+	project.ext.set('modmenu_version', project.hasProperty('modmenu_version') ? project.property('modmenu_version') : '')
+}
+
+def isObfuscated = project.ext.has('is_obfuscated') ? project.ext.get('is_obfuscated').toString().toBoolean() : true
+
+// Obfuscated targets (<=1.21.x) use the remapping Loom plugin; non-obfuscated
+// targets (26.1+) use the new non-remapping plugin id.
+if (isObfuscated) {
+	apply plugin: 'fabric-loom'
+} else {
+	apply plugin: 'net.fabricmc.fabric-loom'
+}
+apply plugin: 'maven-publish'
+
+// Label the artifact with the minor-version range it covers rather than the
+// exact build target — one jar serves a whole minor line (e.g. 1.21.11 -> 1.21.x,
+// 26.1.2 -> 26.1.x). This also keeps per-era builds from overwriting one another.
+def mcParts = mcVersion.tokenize('.')
+def versionLabel = mcParts.size() >= 2 ? "${mcParts[0]}.${mcParts[1]}.x" : mcVersion
+version = "${project.mod_version}+${versionLabel}"
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven { url "https://api.modrinth.com/maven" }
+}
+
+loom {
+	mods {
+		"crittweaks" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+// The mixins (and ModMenuIntegration) reference APIs whose names differ between
+// the Yarn (obfuscated) and Mojang official (non-obfuscated, 26.1+) eras, so
+// those classes live in era-specific source roots. Shared, mapping-agnostic
+// code stays in src/main/java; exactly one era root is compiled per build.
+sourceSets.main.java.srcDir(isObfuscated ? 'src/yarn/java' : 'src/mojang/java')
+
+dependencies {
+	// On non-obfuscated targets the new Loom plugin does no remapping, so the
+	// "mod"-prefixed configurations are replaced by their plain equivalents.
+	def modImpl = isObfuscated ? 'modImplementation' : 'implementation'
+	def modCompile = isObfuscated ? 'modCompileOnly' : 'compileOnly'
+	def modRuntime = isObfuscated ? 'modLocalRuntime' : 'runtimeOnly'
+
+	// Minecraft + mappings
+	minecraft "com.mojang:minecraft:${mcVersion}"
+
+	if (isObfuscated && project.ext.yarn_mappings?.trim()) {
+		mappings "net.fabricmc:yarn:${project.ext.yarn_mappings}:v2"
+	}
+
+	add(modImpl, "net.fabricmc:fabric-loader:${project.loader_version}")
+	add(modImpl, "net.fabricmc.fabric-api:fabric-api:${project.ext.fabric_api_version}")
+
+	// Optional dependencies — we need them on the compile classpath to satisfy javac.
+	// If the profile doesn't specify one, we use the 1.21.11 versions as a fallback just for compilation.
+	def clothVer = project.ext.cloth_config_version?.trim() ?: "21.11.153+fabric"
+	def modmenuVer = project.ext.modmenu_version?.trim() ?: "17.0.0"
+
+	add(modCompile, "maven.modrinth:cloth-config:${clothVer}")
+	if (project.ext.cloth_config_version?.trim()) {
+		add(modRuntime, "maven.modrinth:cloth-config:${clothVer}")
+	}
+
+	add(modCompile, "maven.modrinth:modmenu:${modmenuVer}")
+	if (project.ext.modmenu_version?.trim()) {
+		add(modRuntime, "maven.modrinth:modmenu:${modmenuVer}")
+	}
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "mc_version", mcVersion
+
+	filesMatching("fabric.mod.json") {
+		expand "version": inputs.properties.version,
+		       "mc_version": inputs.properties.mc_version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	def javaVersion = (mcVersion instanceof String && mcVersion.startsWith("26.")) ? 25 : 21
+	it.options.release = javaVersion
+}
+
+java {
+	withSourcesJar()
+	def javaVersionNum = (mcVersion instanceof String && mcVersion.startsWith("26.")) ? 25 : 21
+
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(javaVersionNum)
+	}
+
+	sourceCompatibility = JavaVersion.toVersion(javaVersionNum)
+	targetCompatibility = JavaVersion.toVersion(javaVersionNum)
+}
+
+jar {
+	inputs.property "archivesName", project.base.archivesName
+
+	from("LICENSE") {
+		rename { "${it}_${inputs.properties.archivesName}"}
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			artifactId = project.archives_base_name
+			from components.java
+		}
+	}
+
+	repositories {
+	}
+}
+println "MCVERSION IS: ${mcVersion}"
+
+println "PROPS MINECRAFT_VERSION: ${versionProps['minecraft_version']}"

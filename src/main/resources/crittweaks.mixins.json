@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.example.crittweaks.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ParticleManagerMixin",
+    "ClientPlayerInteractionManagerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
